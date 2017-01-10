@@ -102,7 +102,7 @@ class BlivetGuiSpoke(NormalSpoke, StorageChecker):
 
         # FIXME: do not use self.storage -- make copy in refresh and use it
         self.client = osinstall.BlivetGUIAnacondaClient()
-        box = self.builder.get_object("AnacondaSpokeWindow-action_area1")
+        box = self.builder.get_object("BlivetGuiViewport")
 
         self.blivetgui = osinstall.BlivetGUIAnaconda(self.client, self, box)
 
