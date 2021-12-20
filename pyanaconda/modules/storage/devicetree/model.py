@@ -25,6 +25,7 @@ from blivet.formats import get_format
 from blivet.formats.disklabel import DiskLabel
 from blivet.size import Size
 from blivet.devicelibs.crypto import DEFAULT_LUKS_VERSION
+from blivet.devicelibs.lvm import HAVE_LVMDEVICES
 
 from pyanaconda.core import util
 from pyanaconda.modules.storage.bootloader import BootLoaderFactory
@@ -422,6 +423,11 @@ class InstallerStorage(Blivet):
             template = "%s_image" % template
 
         return template
+
+    def populate_lvm_devicesfile(self):
+        for device in self.device:
+            if device.format and device.format.type == "lvmpv" and HAVE_LVMDEVICES:
+                device.format.lvmdevices_add()
 
     def turn_on_swap(self):
         self.fsset.turn_on_swap(root_path=conf.target.system_root)
