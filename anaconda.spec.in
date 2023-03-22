@@ -182,6 +182,7 @@ for live installations.
 %package install-env-deps
 Summary: Installation environment specific dependencies
 Requires: udisks2-iscsi
+Requires: nvme-cli
 Requires: libblockdev-plugins-all >= %{libblockdevver}
 %if ! 0%{?rhel}
 Requires: libblockdev-lvm-dbus
