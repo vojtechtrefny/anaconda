@@ -67,7 +67,14 @@ class ManualPartitioningTask(NonInteractivePartitioningTask):
             # XXX empty request, ignore
             return
 
-        device = storage.devicetree.resolve_device(device_spec)
+        if format_type == "btrfs" and mount_data.format_uuid:
+            # XXX use both name and UUID for btrfs so we can work with duplicate names
+            spec = "UUID=" + mount_data.format_uuid
+            name = device_spec
+            device = storage.devicetree.resolve_device(devspec=spec, subvolspec=name)
+        else:
+            device = storage.devicetree.resolve_device(device_spec)
+
         if device is None:
             raise StorageError(
                 _("Unknown or invalid device '{}' specified").format(device_spec)

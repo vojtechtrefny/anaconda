@@ -274,6 +274,7 @@ class MountPointRequest(DBusData):
         self._reformat = False
         self._format_type = ""
         self._format_options = ""
+        self._format_uuid = ""
 
     @property
     def device_spec(self) -> Str:
@@ -359,3 +360,15 @@ class MountPointRequest(DBusData):
     @format_options.setter
     def format_options(self, options: Str):
         self._format_options = options
+
+    @property
+    def format_uuid(self) -> Str:
+        """XXX Format UUID, for preexisting formats only
+
+        :return: a string with uuid
+        """
+        return self._format_uuid
+
+    @format_uuid.setter
+    def format_uuid(self, uuid: Str):
+        self._format_uuid = uuid

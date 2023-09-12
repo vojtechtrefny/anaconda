@@ -157,6 +157,7 @@ class ManualPartitioningModule(PartitioningModule):
         :return: an instance of MountPointRequest or None
         """
         for request in requests:
+            # FIXME: for btrfs use UUID + name here too
             if device is self.storage.devicetree.resolve_device(request.device_spec):
                 return request
 
@@ -172,6 +173,9 @@ class ManualPartitioningModule(PartitioningModule):
         request.device_spec = device.name
         request.format_type = device.format.type or ""
         request.reformat = False
+
+        if device.format.uuid:
+            request.format_uuid = device.format.uuid
 
         if device.format.mountable:
             if device.format.mountpoint:
