@@ -871,8 +871,8 @@ class DeviceTreeInterfaceTestCase(unittest.TestCase):
     @patch.object(LUKS, "setup")
     @patch.object(StorageDevice, "teardown")
     @patch.object(StorageDevice, "setup")
-    def test_unlock_device(self, device_setup, device_teardown, format_setup):
-        """Test UnlockDevice."""
+    def test_unlock_device_luks(self, device_setup, device_teardown, format_setup):
+        """Test UnlockDevice with a LUKS device."""
         self.storage.devicetree.populate = Mock()
         self.storage.devicetree.teardown_all = Mock()
 
@@ -900,6 +900,38 @@ class DeviceTreeInterfaceTestCase(unittest.TestCase):
 
         device_teardown.assert_called_once()
         assert not dev1.format.has_key
+
+    @patch.object(StratisPoolDevice, "setup")
+    @patch.object(StorageDevice, "teardown")
+    @patch.object(StorageDevice, "setup")
+    def test_unlock_device_stratis(self, device_setup, device_teardown, format_setup):
+        """Test UnlockDevice with a Stratis pool."""
+        self.storage.devicetree.populate = Mock()
+        self.storage.devicetree.teardown_all = Mock()
+
+        dev1 = StorageDevice("dev1", fmt=get_format("stratis"), size=Size("10 GiB"), exists=True)
+        self._add_device(dev1)
+
+        pool = StratisPoolDevice("pool", parents=[dev1], size=Size("10 GiB"), exists=True)
+        self._add_device(pool)
+
+        assert self.interface.UnlockDevice(pool.device_id, "passphrase") is True
+
+        device_setup.assert_called_once()
+        device_teardown.assert_not_called()
+        self.storage.devicetree.populate.assert_called_once()
+        self.storage.devicetree.teardown_all.assert_called_once()
+        assert pool.has_key
+        assert self.interface.GetDeviceData(pool.device_id) == {
+            'type': get_variant(Str, 'stratis pool'),
+            'attrs': get_variant(Dict[Str, Str], { "encrypted": True, "has_key": "True" }),
+        }
+
+        device_setup.side_effect = StorageError("Fake error")
+        assert self.interface.UnlockDevice(pool.device_id, "passphrase") is False
+
+        device_teardown.assert_called_once()
+        assert not pool.has_key
 
     def test_find_unconfigured_luks(self):
         """Test FindUnconfiguredLUKS."""
